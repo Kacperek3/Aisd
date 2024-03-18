@@ -2,34 +2,32 @@
 #include <cstring>
 #include <stdio.h>
 #include <math.h>
-// Struktura węzła listy
+#define MIN 0
+#define MAX 1
+#define IF 2
+
 template <typename T>
 struct Node {
     T data;
     Node<T>* previous;
 
-    // Konstruktor
     Node(T value) : data(value), previous(nullptr) {}
 };
 
-// Implementacja stosu oparta na liście wiązanej
 template <typename T>
 class Stack {
 private:
-    Node<T>* top; // Wierzchołek stosu
+    Node<T>* top; 
 
 public:
-    // Konstruktor
     Stack() : top(nullptr) {}
 
-    // Destruktor
     ~Stack() {
         while (!isEmpty()) {
             pop();
         }
     }
 
-    // Sprawdza, czy stos jest pusty
     bool isEmpty() {
         return top == nullptr;
     }
@@ -44,7 +42,7 @@ public:
     T pop() {
         if (isEmpty()) {
             std::cerr << "Stack is empty." << std::endl;
-            return -1; // Możesz obsłużyć ten przypadek zgodnie z twoimi potrzebami
+            return -1;
         }
         T value = top->data;
         Node<T>* temp = top;
@@ -53,10 +51,9 @@ public:
         return value;
     }
 
-    // Zwraca wartość na wierzchołku stosu bez usuwania jej
     T peek() {
         if (isEmpty()) {
-            return -1; // Możesz obsłużyć ten przypadek zgodnie z twoimi potrzebami
+            return -1;
         }
         return top->data;
     }
@@ -67,7 +64,55 @@ public:
             std::cout << current->data << " ";
             current = current->previous;
         }
-        //std::cout << std::endl;
+    }
+    void reverse() {
+        if (isEmpty() || top->previous == nullptr) {
+            return;
+        }
+
+        Node<T>* prevNode = nullptr;
+        Node<T>* current = top;
+        Node<T>* nextNode;
+
+        while (current != nullptr) {
+            nextNode = current->previous;
+            current->previous = prevNode;
+            prevNode = current;
+            current = nextNode;
+        }
+
+        top = prevNode;
+    }
+    T min() {
+        if (isEmpty()) {
+            std::cerr << "Stack is empty." << std::endl;
+            return T(); // Zwróć wartość domyślną dla typu T
+        }
+        Node<T>* current = top;
+        T minVal = current->data;
+        while (current != nullptr) {
+            if (current->data < minVal) {
+                minVal = current->data;
+            }
+            current = current->previous;
+        }
+        return minVal;
+    }
+
+    T max() {
+        if (isEmpty()) {
+            std::cerr << "Stack is empty." << std::endl;
+            return T(); // Zwróć wartość domyślną dla typu T
+        }
+        Node<T>* current = top;
+        T maxVal = current->data;
+        while (current != nullptr) {
+            if (current->data > maxVal) {
+                maxVal = current->data;
+            }
+            current = current->previous;
+        }
+        return maxVal;
     }
 };
 
@@ -219,72 +264,8 @@ struct Data {
     int moved;
     int characterNumber;
 };
-/*
-String MaxOrMin(String& tmp, int index) {
-    Stack<char> list;
-    String result = "";
-    int leftBracket = 0;
-    int rightBracket = 0;
 
-
-    for (int i = index; i < tmp.length(); i++) {
-        if (tmp.isDigit(i)) {
-            if (tmp.isDigit(i + 1)) result = result + tmp[i];//std::cout << tmp[i];
-            else result = result + tmp[i] + " ";//std::cout << tmp[i] << " ";
-        }
-        else if (tmp[i] == ' ') {
-            continue;
-        }
-        else if (tmp[i] == 'M' and tmp[i + 2] == 'X') {
-            result = result + MaxOrMin(tmp, i + 5);
-            i += 24;
-
-        }
-        else if (tmp[i] == ',') {
-            while (!list.isEmpty()) {
-                result = result + list.peek() + " ";
-                list.pop();
-            }
-        }
-        else if (tmp[i] == '(') {
-            leftBracket++;
-            list.push(tmp[i]);
-        }
-        else if (tmp[i] == ')') {
-            rightBracket++;
-            if (rightBracket > leftBracket) {
-                result = result + " MAX ";
-                return result;
-            }
-
-            while (list.peek() != '(') {
-                result = result + list.peek() + " ";
-                list.pop();
-            }
-            list.pop();
-        }
-
-        else if (tmp[i] == '+' or tmp[i] == '-') {
-            while (list.peek() != '(' and !list.isEmpty()) {
-                result = result + list.peek() + " ";
-                list.pop();
-            }
-            list.push(tmp[i]);
-        }
-
-        else if (tmp[i] == '*' or tmp[i] == '/') list.push(tmp[i]);
-
-    }
-    while (!list.isEmpty()) {
-        result = result + list.peek() + " ";
-        //std::cout << list.peek() << " ";
-        list.pop();
-    }
-}
-*/
-
-Data MaxOrMin(String& tmp, int index) {
-
+Data MaxOrMin(String& tmp, int index, int Max) {
     Data temporaly;
     temporaly.moved = 1;
     temporaly.result = "";
@@ -306,10 +287,22 @@ Data MaxOrMin(String& tmp, int index) {
             continue;
         }
         else if (tmp[i] == 'M' and tmp[i + 2] == 'X') {
-            returned = MaxOrMin(tmp, i + 5);
+            returned = MaxOrMin(tmp, i + 5, MAX);
             temporaly.result = temporaly.result + returned.result;
             i += returned.characterNumber + 5;
             temporaly.characterNumber += returned.characterNumber + 5;
+        }
+        else if (tmp[i] == 'M' and tmp[i + 2] == 'N') {
+            returned = MaxOrMin(tmp, i + 5, MIN);
+            temporaly.result = temporaly.result + returned.result;
+            i += returned.characterNumber + 5;
+            temporaly.characterNumber += returned.characterNumber + 5;
+        }
+        else if (tmp[i] == 'I' and tmp[i + 1] == 'F') {
+            returned = MaxOrMin(tmp, i + 4, IF);
+            temporaly.result = temporaly.result + returned.result;
+            i += returned.characterNumber + 4;
+            temporaly.characterNumber += returned.characterNumber + 4;
         }
         else if (tmp[i] == ',') {
             temporaly.moved++;
@@ -326,7 +319,13 @@ Data MaxOrMin(String& tmp, int index) {
             rightBracket++;
             String numberOfDigitsToString;
             if (rightBracket > leftBracket) {
-                temporaly.result = temporaly.result + "MAX" + intToChar(temporaly.moved) + " ";
+                while (!list.isEmpty()) {
+                    temporaly.result = temporaly.result + list.peek() + " ";
+                    list.pop();
+                }
+                if(Max == MAX) temporaly.result = temporaly.result + "MAX" + intToChar(temporaly.moved) + " ";
+                else if(Max == MIN) temporaly.result = temporaly.result + "MIN" + intToChar(temporaly.moved) + " ";
+                else temporaly.result = temporaly.result + "IF" + " ";
                 return temporaly;
             }
 
@@ -345,62 +344,26 @@ Data MaxOrMin(String& tmp, int index) {
             list.push(tmp[i]);
         }
 
-        else if (tmp[i] == '*' or tmp[i] == '/') list.push(tmp[i]);
+        else if (tmp[i] == '*' or tmp[i] == '/') {
+            while (list.peek() != '(' and list.peek() != '+' and list.peek() != '-' and !list.isEmpty()) {
+                temporaly.result = temporaly.result + list.peek() + " ";
+                list.pop();
+            }
+            list.push(tmp[i]);
+        }
+
+        else if (tmp[i] == 'N') list.push(tmp[i]);
+
 
     }
     while (!list.isEmpty()) {
         temporaly.result = temporaly.result + list.peek() + " ";
         list.pop();
     }
+    return temporaly;
 }
 
-String ONP(String& tmp) {
-    Stack<char> list;
-    String result = "";
-
-    for (int i = 0; i < tmp.length(); i++) {
-        if (tmp.isDigit(i)) {
-            if (tmp.isDigit(i + 1)) result = result + tmp[i];//std::cout << tmp[i];
-            else result = result + tmp[i] + " ";//std::cout << tmp[i] << " ";
-        }
-        else if (tmp[i] == ' ') {
-            continue;
-        }
-        else if (tmp[i] == 'M' and tmp[i+2] == 'X') {
-
-
-
-
-        }
-        else if (tmp[i] == '(') list.push(tmp[i]);
-        else if (tmp[i] == ')') {
-            while (list.peek() != '('){
-                result = result + list.peek() + " ";
-                list.pop();
-            }
-            list.pop();
-        }
-    
-        else if (tmp[i] == '+' or tmp[i] == '-') {
-            while (list.peek() != '(' and !list.isEmpty()) {
-                result = result + list.peek() + " ";
-                list.pop();
-            }
-            list.push(tmp[i]);
-        }
-            
-        else if (tmp[i] == '*' or tmp[i] == '/') list.push(tmp[i]);
-        
-    }
-    while (!list.isEmpty()) {
-        result = result + list.peek() + " ";
-        //std::cout << list.peek() << " ";
-        list.pop();
-    }
-    return result;
-}
-
-void ONPtoResult(String& tmp) {
+int ONPtoResult(String& tmp) {
     Stack<int> list;
     String result = "";
 
@@ -464,25 +427,114 @@ void ONPtoResult(String& tmp) {
             if(operand2 != 0) list.push(operand1 / operand2);
             else {
                 std::cout << "ERROR";
-                return;
+                return 2004;
             }
+        }
+        else if (tmp[i] == 'N') {
+
+            std::cout << "N ";
+            list.display();
+            std::cout << std::endl;
+
+            int operand1 = list.pop();
+            list.push(operand1 * (-1));
+            
+        }
+
+        else if (tmp[i] == 'I' and tmp[i + 1] == 'F') {
+
+            std::cout << "IF ";
+            list.display();
+            std::cout << std::endl;
+
+            int operand1 = list.pop();
+            int operand2 = list.pop();
+            int operand3 = list.pop();
+            
+            if(operand3 > 0) list.push(operand2);
+            else list.push(operand1);
+            i += 2;
+        }
+        else if (tmp[i] == 'M' and tmp[i + 2] == 'X') {
+            
+            String a = "";
+            Stack<int> max;
+            int t = i + 3;
+            int digits;
+            int lenght = tmp.length();
+            while (tmp[t] != ' ' and t < tmp.length()) {
+
+                a = a + tmp[t];
+                t++;
+            }
+            int number = 0;
+
+            for (int j = 0; j < a.length(); j++) {
+                number = number * 10 + (a[j] - '0');
+            }
+            std::cout << "MAX" << number << " ";
+            list.display();
+            for (int j = 0; j < number; j++) {
+                max.push(list.pop());
+            }
+            max.reverse();
+            list.push(max.max());
+            std::cout << std::endl;
+            i += 3 + a.length();
+        }
+        else if (tmp[i] == 'M' and tmp[i + 2] == 'N') {
+
+            String a = "";
+            Stack<int> max;
+            int t = i + 3;
+            int digits;
+            int lenght = tmp.length();
+            while (tmp[t] != ' ' and t < tmp.length()) {
+
+                a = a + tmp[t];
+                t++;
+            }
+            int number = 0;
+
+            for (int j = 0; j < a.length(); j++) {
+                number = number * 10 + (a[j] - '0');
+            }
+            std::cout << "MIN" << number << " ";
+            list.display();
+            for (int j = 0; j < number; j++) {
+                max.push(list.pop());
+            }
+            max.reverse();
+            list.push(max.min());
+            std::cout << std::endl;
+            i += 3 + a.length();
         }
     }
 
-    std::cout << "Wynik: " << list.pop() << std::endl;
+    return list.pop();
 }
-
 
 
 
 int main() {
-    String object = "MAX ( 100 , MAX ( 1 , 34 , 2 ) , 80 ,  MAX ( 66 , 36  , 35 , 77 ) , 50 , 60 )";
-    String object1 = "2 + MAX ( 100 , MAX ( 1 , 6 * 5 + 2 , 2 ) , 80 ,  MAX ( 66 , 36  , 35 , 77 ) , 50 , 60 ) * 3";
-    Data ala = MaxOrMin(object1, 0);
-    std::cout << ala.result;
-    //std::cin >> object;
-    //std::cout << ONP(object);
-    //std::cout << pow(10,2);
-    
+    int n;
+    scanf_s("%d", &n); // Read the number of inputs
+    getchar(); // Consume the newline character after reading 'n'
+
+    char buffer[100]; // Assuming a maximum input length of 100 characters
+    int result;
+    for (int i = 0; i < n; i++) {
+        scanf_s("%s", buffer); // Read a string into buffer
+        String object(buffer); // Convert the C-style string to your custom String object
+        Data ala = MaxOrMin(object, 0, 0); // Process the input string
+        printf_s("%s\n", ala.result); // Print the result
+        result = ONPtoResult(ala.result); // Compute the result
+        if (result != 2004)
+            printf_s("%d\n\n", result); // Print the result if it's not 2004
+        else
+            printf_s("\n\n"); // Otherwise, print newlines
+    }
+
     return 0;
 }
+
