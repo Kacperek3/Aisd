@@ -2,6 +2,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <math.h>
+
 #define MIN 0
 #define MAX 1
 #define IF 2
@@ -518,23 +519,19 @@ int ONPtoResult(String& tmp) {
 
 int main() {
     int n;
-    scanf_s("%d", &n); // Read the number of inputs
-    getchar(); // Consume the newline character after reading 'n'
-
-    char buffer[100]; // Assuming a maximum input length of 100 characters
+    std::cin >> n;
+    std::cin.ignore();
+    String object;
     int result;
     for (int i = 0; i < n; i++) {
-        scanf_s("%s", buffer); // Read a string into buffer
-        String object(buffer); // Convert the C-style string to your custom String object
-        Data ala = MaxOrMin(object, 0, 0); // Process the input string
-        printf_s("%s\n", ala.result); // Print the result
-        result = ONPtoResult(ala.result); // Compute the result
-        if (result != 2004)
-            printf_s("%d\n\n", result); // Print the result if it's not 2004
-        else
-            printf_s("\n\n"); // Otherwise, print newlines
+        std::cin >> object;
+        Data ala = MaxOrMin(object, 0, 0);
+        std::cout << ala.result << std::endl;
+        result = ONPtoResult(ala.result);
+        if (result != 2004)  std::cout << result << std::endl << std::endl;
+        else std::cout << std::endl << std::endl;
     }
+   
 
     return 0;
 }
-
